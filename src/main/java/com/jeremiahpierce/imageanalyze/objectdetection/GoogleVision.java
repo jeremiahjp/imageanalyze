@@ -13,10 +13,14 @@ import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.entities.ImageMetadata;
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.factory.CloudProviderFactory;
-import com.jeremiahpierce.imageanalyze.interfaces.IObjectAnalysis;
+import com.jeremiahpierce.imageanalyze.interfaces.ICloudStorageProvider;
+import com.jeremiahpierce.imageanalyze.interfaces.IObjectDetectionProvider;
 import com.jeremiahpierce.imageanalyze.repositories.ImageRepository;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -27,50 +31,28 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;;
 
-public class GoogleVision implements IObjectAnalysis {
+@Component
+public class GoogleVision implements IObjectDetectionProvider {
 
 
     private CloudProviderFactory cloudProviderFactory;
-    private ImageRepository imageRepository;
+    // private ImageRepository imageRepository;
     private ModelMapper modelMapper;
+
+    @Value("${heb.cloud.storage-provider}")
+    private String cloudStorageProvider;
 
     public GoogleVision() {}
 
-    public GoogleVision(CloudProviderFactory cloudProviderFactory, ImageRepository imageRepository, ModelMapper modelMapper) {
+    public GoogleVision(CloudProviderFactory cloudProviderFactory, ModelMapper modelMapper) {
         this.cloudProviderFactory = cloudProviderFactory;
-        this.imageRepository = imageRepository;
+        // this.imageRepository = imageRepository;
         this.modelMapper = modelMapper;
     }
 
+    // This should return information about the image from the object detection provider
     @Override
-    public List<Images> getAllImages() {
-
-        return imageRepository.findAll();
-    }
-
-    @Override
-    public List<Images> getAllImagesByDetectedObjects(List<String> objects) {
-        List<Images> images = imageRepository.findAllByImageMetadataMetadataIn(objects);
-        return images;
-    }
-
-    // private List<EntityAnnotation> getImageLabels(byte[] imageBytes) {
-    // return null;
-
-    // }
-
-    @Override
-    @Transactional
-    public Images getImageById(UUID id) {
-        // Add an exception to throw
-        return imageRepository.findById(id).orElseThrow(null);
-    }
-
-    @Override
-    public ImageDto sendImage(byte[] imgBytes, String label, boolean enableObjectDetection) throws IOException {
-
-        // Upload the file to Cloud Storage and get its URL
-        String imageUrl = cloudProviderFactory.getProvider("GOOGLE_PROVIDER").upload(label, imgBytes);
+    public Map<String, Float> process(byte[] imgBytes, String label, boolean enableObjectDetection, String imgUrl) throws IOException {
 
         ImageAnnotatorClient vision = ImageAnnotatorClient.create();
         ByteString byteString = ByteString.copyFrom(imgBytes);
@@ -88,6 +70,9 @@ public class GoogleVision implements IObjectAnalysis {
 
         Images imageDao = new Images();
         imageDao.setLabel(label);
+        imageDao.setUrl(imgUrl);
+
+        Map<String, Float> descriptionAndScore = new HashMap<>();
 
         // TODO: create exception
         for (AnnotateImageResponse res : responses) {
@@ -98,16 +83,18 @@ public class GoogleVision implements IObjectAnalysis {
             for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {
                 ImageMetadata imageMetadata = new ImageMetadata(imageDao, annotation.getDescription(),
                         annotation.getScore());
-                imageMetadataList.add(imageMetadata);
+                // imageMetadataList.add(imageMetadata);
+                descriptionAndScore.put(annotation.getDescription(), annotation.getScore());
                 annotations.put(annotation.getDescription(), annotation.getScore());
             }
         }
         imageDao.setImageMetadata(imageMetadataList);
         vision.close();
 
-        Images savedImage = imageRepository.save(imageDao);
-        ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
-        return imageDtoMetadataDto;
+        // this needs to be done in the caller method
+        // Images savedImage = imageRepository.save(imageDao);
+        // ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
+        return descriptionAndScore;
     }
     
 }

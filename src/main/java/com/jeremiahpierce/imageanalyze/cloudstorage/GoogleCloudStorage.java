@@ -9,6 +9,7 @@ import com.jeremiahpierce.imageanalyze.interfaces.ICloudStorageProvider;
 
 public class GoogleCloudStorage implements ICloudStorageProvider {
 
+    //TODO: these could be env vars or properties
     private static final String PROJECT_ID = "heb-code-exercise";
     private static final String BUCKET_NAME = "heb-bucket";
 

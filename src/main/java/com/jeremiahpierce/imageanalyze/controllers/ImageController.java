@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.UUID;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
-import com.jeremiahpierce.imageanalyze.factory.ObjectDetectionProviderFactory;
-import com.jeremiahpierce.imageanalyze.interfaces.IObjectAnalysis;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
 import org.springframework.http.ResponseEntity;
@@ -25,13 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageController {
 
-    private final ObjectDetectionProviderFactory objectDetectionProviderFactory;
+    // private final ObjectDetectionProviderFactory objectDetectionProviderFactory;
     private final ImageService imageService;
 
     private static final String OBJECT_DETECTION_PROVIDER = "GOOGLE VISION";
 
-    public ImageController(ObjectDetectionProviderFactory objectDetectionProviderFactory, ImageService imageService) {
-        this.objectDetectionProviderFactory = objectDetectionProviderFactory;
+    public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
 

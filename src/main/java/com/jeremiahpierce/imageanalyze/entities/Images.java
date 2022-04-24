@@ -25,6 +25,7 @@ public class Images {
     @GeneratedValue
     private UUID id;
     private String label;
+    private String url;
     @OneToMany(mappedBy = "image", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ImageMetadata> imageMetadata;

@@ -11,5 +11,6 @@ public class ImageDto {
 
     private UUID id;
     private String label;
+    private String url;
     private List<ImageMetadataDto> imageMetadata;
 }

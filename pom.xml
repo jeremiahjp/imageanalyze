@@ -15,6 +15,13 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
+        <lombok.version>1.18.24</lombok.version>
+        <postgresql.version>42.3.4</postgresql.version>
+        <google-cloud-vision.version>2.0.28</google-cloud-vision.version>
+        <minnio.version>8.3.7</minnio.version>
+        <okhttp.version>4.9.3</okhttp.version>
+        <modelmapper.version>3.1.0</modelmapper.version>
+        <libraries-bom.version>25.1.0</libraries-bom.version>
 	</properties>
 
     <dependencyManagement>
@@ -22,7 +29,7 @@
             <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>libraries-bom</artifactId>
-            <version>25.1.0</version>
+            <version>${libraries-bom.version}</version>
             <type>pom</type>
             <scope>import</scope>
             </dependency>
@@ -50,7 +57,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.24</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
         </dependency>
 
@@ -64,14 +71,14 @@
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
-            <version>42.3.4</version>
+            <version>${postgresql.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-vision -->
         <dependency>
             <groupId>com.google.cloud</groupId>
             <artifactId>google-cloud-vision</artifactId>
-            <version>2.0.28</version>
+            <version>${google-cloud-vision.version}</version>
         </dependency>
 
         <dependency>
@@ -85,21 +92,21 @@
         <dependency>
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
-            <version>3.1.0</version>
+            <version>${modelmapper.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/io.minio/minio -->
         <dependency>
             <groupId>io.minio</groupId>
             <artifactId>minio</artifactId>
-            <version>8.3.3</version>
+            <version>${minnio.version}</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.squareup.okhttp3/okhttp -->
         <dependency>
             <groupId>com.squareup.okhttp3</groupId>
             <artifactId>okhttp</artifactId>
-            <version>4.9.3</version>
+            <version>${okhttp.version}</version>
         </dependency>
 
 

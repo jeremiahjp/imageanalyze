@@ -8,9 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class ObjectDetectionProviderFactory {
 
-    private static final String ENV_MODE = "";
     private static final String GOOGLE_VISION = "Google Vision";
-
 
     public IObjectDetectionProvider getObjectDetectionProvider(String mode) {
         switch(mode) {

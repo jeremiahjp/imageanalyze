@@ -7,6 +7,8 @@ import java.util.UUID;
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,10 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageController {
 
-    // private final ObjectDetectionProviderFactory objectDetectionProviderFactory;
     private final ImageService imageService;
-
-    private static final String OBJECT_DETECTION_PROVIDER = "GOOGLE VISION";
 
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
@@ -71,12 +70,15 @@ public class ImageController {
         return ResponseEntity.ok().body(image);
     }
 
+    /**
+     * 
+     * @param imageId
+     * @return
+     */
     @GetMapping("{imageId}")
     public ResponseEntity<Images> getImage(@PathVariable UUID imageId) {
         log.info("GET image metadata for imageId", imageId);
-        Images image = imageService.getImageById(imageId);
-        return ResponseEntity.ok().body(image);
-
+        return new ResponseEntity<>(imageService.getImageById(imageId), HttpStatus.OK);
     }
 
 }

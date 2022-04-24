@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.entities.ImageMetadata;
 import com.jeremiahpierce.imageanalyze.entities.Images;
+import com.jeremiahpierce.imageanalyze.exceptions.ImageNotFoundException;
 import com.jeremiahpierce.imageanalyze.factory.CloudProviderFactory;
 import com.jeremiahpierce.imageanalyze.factory.ObjectDetectionProviderFactory;
 import com.jeremiahpierce.imageanalyze.repositories.ImageRepository;
@@ -64,7 +65,7 @@ public class ImageService {
 
     public Images getImageById(UUID id) {
         // Add an exception to throw
-        return imageRepository.findById(id).orElseThrow(null);
+        return imageRepository.findById(id).orElseThrow(() -> new ImageNotFoundException("Could not find the resource " + id));
     }
 
     public ImageDto sendImage(byte[] imgBytes, String label, boolean enableObjectDetection) throws IOException {

@@ -9,6 +9,8 @@ import com.jeremiahpierce.imageanalyze.interfaces.IObjectDetectionProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import lombok.extern.log4j.Log4j2;
+
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -20,6 +22,7 @@ import java.util.ArrayList;
 import java.util.HashMap;;
 
 @Component
+@Log4j2
 public class GoogleVision implements IObjectDetectionProvider {
 
     @Value("${heb.cloud.storage-provider}")
@@ -45,7 +48,8 @@ public class GoogleVision implements IObjectDetectionProvider {
         // TODO: create exception
         for (AnnotateImageResponse res : responses) {
             if (res.hasError()) {
-                System.out.format("Error: %s%n", res.getError().getMessage());
+                log.error("Error: %s%n", res.getError().getMessage());
+                return descriptionAndScore;
             }
 
             for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {

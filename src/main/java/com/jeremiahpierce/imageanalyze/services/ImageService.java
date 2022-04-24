@@ -87,7 +87,6 @@ public class ImageService {
 
 
         for(Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
-            System.out.println("Key = " + object.getKey() + ", Value = " + object.getValue());
             ImageMetadata imageMetadata = new ImageMetadata(imageDao, object.getKey(), object.getValue());
             imageMetadataList.add(imageMetadata);
         }

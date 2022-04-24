@@ -5,9 +5,10 @@ import java.util.List;
 import java.util.UUID;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
+import com.jeremiahpierce.imageanalyze.factory.ObjectDetectionProviderFactory;
+import com.jeremiahpierce.imageanalyze.interfaces.IObjectAnalysis;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ImageController {
 
+    private final ObjectDetectionProviderFactory objectDetectionProviderFactory;
     private final ImageService imageService;
 
-    public ImageController(ImageService imageService) {
+    private static final String OBJECT_DETECTION_PROVIDER = "GOOGLE VISION";
+
+    public ImageController(ObjectDetectionProviderFactory objectDetectionProviderFactory, ImageService imageService) {
+        this.objectDetectionProviderFactory = objectDetectionProviderFactory;
         this.imageService = imageService;
     }
 
@@ -35,9 +40,10 @@ public class ImageController {
      * @return JSON resonse containing all image metadata
      */
     @GetMapping("")
-    public ResponseEntity<List<UUID>> getImages(@RequestParam(required = false) List<String> objects) {
+    public ResponseEntity<List<Images>> getImages(@RequestParam(required = false) List<String> objects) {
         log.info("GET images {}", objects);
-        List<UUID> listOfMetadata = imageService.getAllImagesByDetectedObjects(objects);
+        // IObjectAnalysis objectAnalysis = objectDetectionProviderFactory
+        List<Images> listOfMetadata = imageService.getAllImagesByDetectedObjects(objects);
 
         return ResponseEntity.ok().body(listOfMetadata);
     }

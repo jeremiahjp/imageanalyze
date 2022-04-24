@@ -1,4 +1,4 @@
-package com.jeremiahpierce.imageanalyze.services;
+package com.jeremiahpierce.imageanalyze.objectdetection;
 
 import java.util.List;
 import java.util.Map;
@@ -17,17 +17,6 @@ import com.jeremiahpierce.imageanalyze.interfaces.IObjectAnalysis;
 import com.jeremiahpierce.imageanalyze.repositories.ImageRepository;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import lombok.RequiredArgsConstructor;
-
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobId;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
-// import com.google.cloud.storage.StorageOptions;
 import com.google.cloud.vision.v1.AnnotateImageRequest;
 import com.google.cloud.vision.v1.AnnotateImageResponse;
 import com.google.cloud.vision.v1.BatchAnnotateImagesResponse;
@@ -35,28 +24,23 @@ import com.google.cloud.vision.v1.Feature;
 import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashMap;;
 
-@Service
-public class ImageService implements IObjectAnalysis {
+public class GoogleVision implements IObjectAnalysis {
 
-    private final ImageRepository imageRepository;
-    private final CloudProviderFactory cloudProviderFactory;
 
-    // need to grab the env variable for the cloud provider
-    private static final String GOOGLE_PROVIDER = "GOOGLE_CLOUD_STORAGE";
-
-    public ImageService (ImageRepository imageRepository, CloudProviderFactory cloudProviderFactory) {
-        this.imageRepository = imageRepository;
-        this.cloudProviderFactory = cloudProviderFactory;
-
-    }
-
-    @Autowired
+    private CloudProviderFactory cloudProviderFactory;
+    private ImageRepository imageRepository;
     private ModelMapper modelMapper;
+
+    public GoogleVision() {}
+
+    public GoogleVision(CloudProviderFactory cloudProviderFactory, ImageRepository imageRepository, ModelMapper modelMapper) {
+        this.cloudProviderFactory = cloudProviderFactory;
+        this.imageRepository = imageRepository;
+        this.modelMapper = modelMapper;
+    }
 
     @Override
     public List<Images> getAllImages() {
@@ -86,7 +70,7 @@ public class ImageService implements IObjectAnalysis {
     public ImageDto sendImage(byte[] imgBytes, String label, boolean enableObjectDetection) throws IOException {
 
         // Upload the file to Cloud Storage and get its URL
-        String imageUrl = cloudProviderFactory.getProvider(GOOGLE_PROVIDER).upload(label, imgBytes);
+        String imageUrl = cloudProviderFactory.getProvider("GOOGLE_PROVIDER").upload(label, imgBytes);
 
         ImageAnnotatorClient vision = ImageAnnotatorClient.create();
         ByteString byteString = ByteString.copyFrom(imgBytes);
@@ -125,5 +109,5 @@ public class ImageService implements IObjectAnalysis {
         ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
         return imageDtoMetadataDto;
     }
-
+    
 }

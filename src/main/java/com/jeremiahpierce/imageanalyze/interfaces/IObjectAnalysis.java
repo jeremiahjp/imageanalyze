@@ -20,7 +20,7 @@ public interface IObjectAnalysis {
      * @param objects
      * @return
      */
-    List<UUID> getAllImagesByDetectedObjects(List<String> objects);
+    List<Images> getAllImagesByDetectedObjects(List<String> objects);
 
     /**
      * 
@@ -39,13 +39,5 @@ public interface IObjectAnalysis {
      */
     Images getImageById(UUID id);
 
-
-    /**
-     * 
-     * @param filename
-     * @param fileBytes
-     * @return
-     */
-    String upload(String filename, byte[] fileBytes);
 
 }

@@ -3,6 +3,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+# ignore so no accidental secrets push
+env_vars.sh
 
 ### STS ###
 .apt_generated

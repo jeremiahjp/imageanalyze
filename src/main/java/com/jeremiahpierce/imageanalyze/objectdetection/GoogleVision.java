@@ -5,6 +5,7 @@ import java.util.Map;
 
 import com.google.cloud.vision.v1.EntityAnnotation;
 import com.google.protobuf.ByteString;
+import com.jeremiahpierce.imageanalyze.exceptions.ImageAnnotatorClientException;
 import com.jeremiahpierce.imageanalyze.interfaces.IObjectDetectionProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -30,9 +31,16 @@ public class GoogleVision implements IObjectDetectionProvider {
 
     // This should return information about the image from the object detection provider
     @Override
-    public Map<String, Float> process(byte[] imgBytes, String label) throws IOException {
+    public Map<String, Float> process(byte[] imgBytes, String label) {
 
-        ImageAnnotatorClient vision = ImageAnnotatorClient.create();
+        ImageAnnotatorClient vision;
+        try {
+            vision = ImageAnnotatorClient.create();
+        }
+        catch (IOException e) {
+            log.error("The provider had an error. {}", e.getMessage());
+            throw new ImageAnnotatorClientException(String.format("The provider had an error. %s", e.getMessage()));
+        }
         ByteString byteString = ByteString.copyFrom(imgBytes);
         List<AnnotateImageRequest> requests = new ArrayList<>();
         Image image = Image.newBuilder().setContent(byteString).build();
@@ -49,7 +57,6 @@ public class GoogleVision implements IObjectDetectionProvider {
         for (AnnotateImageResponse res : responses) {
             if (res.hasError()) {
                 log.error("Error: {}", res.getError().getMessage(), res.getError());
-                return descriptionAndScore;
             }
 
             for (EntityAnnotation annotation : res.getLabelAnnotationsList()) {

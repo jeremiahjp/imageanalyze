@@ -17,6 +17,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -69,7 +70,15 @@ public class ImageService {
         return imageRepository.findById(id).orElseThrow(() -> new ImageNotFoundException("Could not find the resource " + id));
     }
 
-    public ImageDto sendImage(byte[] imgBytes, String label, boolean enableObjectDetection) throws IOException {
+    public ImageDto sendImage(MultipartFile file, String url, String label, boolean enableObjectDetection) {
+
+        if (file != null) {}
+        byte[] imgBytes;
+        try {
+            imgBytes = file.getBytes();
+        } catch (IOException e) {
+            throw new RuntimeException("Error");
+        }
 
         // Upload the file to the cloud provider
         String imgUrl = cloudProviderFactory
@@ -80,9 +89,10 @@ public class ImageService {
         Images imageDao = new Images();
 
         if (enableObjectDetection) {
-            Map<String, Float> descriptionAndScore = objectDetectionProviderFactory
-                .getObjectDetectionProvider(objectDetectionProvider)
-                .process(imgBytes, label);
+            Map<String, Float> descriptionAndScore;
+                descriptionAndScore = objectDetectionProviderFactory
+                    .getObjectDetectionProvider(objectDetectionProvider)
+                    .process(imgBytes, label);
             
             if (descriptionAndScore.isEmpty()) {
                 for(Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {

@@ -29,4 +29,26 @@ public class Images {
     @OneToMany(mappedBy = "image", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<ImageMetadata> imageMetadata;
+
+    /**
+     * 
+     * @param label
+     * @param url
+     * @param imageMetadata
+     */
+    public Images(String label, String url, List<ImageMetadata> imageMetadata) {
+        this.label = label;
+        this.url = url;
+        this.imageMetadata = imageMetadata;
+    }
+
+    /**
+     * 
+     * @param label
+     * @param url
+     */
+    public Images(String label, String url) {
+        this.label = label;
+        this.url = url;
+    }
 }

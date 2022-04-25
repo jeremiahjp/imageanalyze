@@ -1,19 +1,14 @@
 package com.jeremiahpierce.imageanalyze.controllers;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.List;
 import java.util.UUID;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.exceptions.InvalidRequestException;
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.jeremiahpierce.common.LabelCreator;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
 
-import org.apache.commons.io.IOUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,13 +36,18 @@ public class ImageController {
      * 
      * @return JSON resonse containing all image metadata
      */
-    @GetMapping("")
+    @GetMapping
     public ResponseEntity<List<Images>> getImages(@RequestParam(required = false) List<String> objects) {
-        log.info("GET images {}", objects);
-        // IObjectAnalysis objectAnalysis = objectDetectionProviderFactory
-        List<Images> listOfMetadata = imageService.getAllImagesByDetectedObjects(objects);
-
-        return ResponseEntity.ok().body(listOfMetadata);
+        List<Images> listOfImages;
+        if (objects == null || objects.isEmpty()) {
+            log.info("GET all images");
+            listOfImages = imageService.getAllImages();
+        }
+        else {
+            log.info("GET images by detected objects {}", objects);
+            listOfImages = imageService.getAllImagesByDetectedObjects(objects);
+        }
+        return ResponseEntity.ok().body(listOfImages);
     }
 
     /**
@@ -61,52 +61,26 @@ public class ImageController {
             @RequestParam boolean enableObjectDetection,
             @RequestParam(required = false) MultipartFile file) {
 
+        ImageDto image;
+        if (file == null && url == null) {
+            log.info("No file or URL provided");
+            throw new InvalidRequestException("No file or URL provided");
+        }
+        else if (file != null && url != null) {
+            log.info("Provided file and URL");
+            throw new InvalidRequestException("Provide only a file or a URL.");
+        }
 
-        // if (file == null && url == null) {
-        //     log.info("No file or URL provided");
-        //     throw new InvalidRequestException("No file or URL provided");
-        // }
+        if (label == null || label.isBlank()) {
+            label = LabelCreator.createNewLabel(file.getOriginalFilename());
+        }
 
-        ImageDto image = new ImageDto();
-        // byte[] fileBytes = null;
-
-        // if (label == null || label.isBlank()) {
-        //     if (url != null) {
-        //         label = LabelCreator.createNewLabel(url);
-        //     }
-        //     else if (file != null) {
-        //         label = LabelCreator.createNewLabel(file.getOriginalFilename());
-        //     }
-        // }
-
-        // if (file != null) {
-        //     log.info("POST image with FILE: {}", file.getOriginalFilename());
-        //     try {
-        //         fileBytes = file.getBytes();
-        //     } catch (IOException e) {
-        //         log.error("Error reading the file: {}", e.getMessage());
-        //         e.printStackTrace();
-        //         return null;
-        //     }
-        // } 
-        // else {
-        //     log.info("POST image with url: {}", url);
-        //     try {
-        //         URL imageUrl = new URL(url);
-        //         InputStream in = imageUrl.openStream();
-        //         fileBytes = IOUtils.toByteArray(in);
-        //     } catch (IOException e) {
-        //         e.printStackTrace();
-        //         return null;
-        //     }
-        // }
-
-        // try {
-        image = imageService.sendImage(file, url, label, enableObjectDetection);
-        // } catch (IOException e) {
-        //     log.error("Error reading the file: {}", e.getMessage());
-        //     return null;
-        // }
+        if (file != null && url == null) {
+            image = imageService.sendImage(file, label, enableObjectDetection);
+        }
+        else {
+            image = imageService.sendImage(url, label, enableObjectDetection);
+        }
         return ResponseEntity.ok().body(image);
     }
 

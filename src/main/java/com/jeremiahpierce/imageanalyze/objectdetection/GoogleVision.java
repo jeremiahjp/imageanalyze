@@ -29,9 +29,8 @@ public class GoogleVision implements IObjectDetectionProvider {
     @Value("${heb.cloud.storage-provider}")
     private String cloudStorageProvider;
 
-    // This should return information about the image from the object detection provider
     @Override
-    public Map<String, Float> process(byte[] imgBytes, String label) {
+    public Map<String, Float> process(byte[] imgBytes) {
 
         ImageAnnotatorClient vision;
         try {

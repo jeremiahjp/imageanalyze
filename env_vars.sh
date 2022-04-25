@@ -1,0 +1,6 @@
+export BUCKET_NAME=""
+export PROJECT_ID=""
+export MINIO_BUCKET_NAME=""
+export MINIO_SECRET_KEY=""
+export MINIO_ACCESS_KEY=""
+export MINIO_HOST=""

@@ -30,7 +30,7 @@ public class GoogleVision implements IObjectDetectionProvider {
 
     // This should return information about the image from the object detection provider
     @Override
-    public Map<String, Float> process(byte[] imgBytes, String label, boolean enableObjectDetection, String imgUrl) throws IOException {
+    public Map<String, Float> process(byte[] imgBytes, String label) throws IOException {
 
         ImageAnnotatorClient vision = ImageAnnotatorClient.create();
         ByteString byteString = ByteString.copyFrom(imgBytes);
@@ -48,7 +48,7 @@ public class GoogleVision implements IObjectDetectionProvider {
         // TODO: create exception
         for (AnnotateImageResponse res : responses) {
             if (res.hasError()) {
-                log.error("Error: %s%n", res.getError().getMessage());
+                log.error("Error: {}", res.getError().getMessage(), res.getError());
                 return descriptionAndScore;
             }
 

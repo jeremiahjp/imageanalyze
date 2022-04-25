@@ -20,5 +20,8 @@ spring:
 heb:
   cloud:
     object-detection-provider: Google Vision
-    # storage-provider: Google Cloud Storage
-    storage-provider: Minio
+    storage-provider: Google Cloud Storage
+    supported:
+      filetypes:
+        IMG: [.jpeg, .png, .gif, .webp, .raw, .ico, .pdf, .tiff]
+    # storage-provider: Minio

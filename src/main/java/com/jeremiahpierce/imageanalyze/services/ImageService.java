@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.entities.ImageMetadata;
 import com.jeremiahpierce.imageanalyze.entities.Images;
@@ -75,28 +76,29 @@ public class ImageService {
             .getProvider(cloudStorageProvider)
             .upload(label, imgBytes);
 
-        Map<String, Float> descriptionAndScore = objectDetectionProviderFactory
-                .getObjectDetectionProvider(objectDetectionProvider)
-                .process(imgBytes, label, enableObjectDetection, imgUrl);
-
         List<ImageMetadata> imageMetadataList = new ArrayList<>();
-
         Images imageDao = new Images();
+
+        if (enableObjectDetection) {
+            Map<String, Float> descriptionAndScore = objectDetectionProviderFactory
+                .getObjectDetectionProvider(objectDetectionProvider)
+                .process(imgBytes, label);
+            
+            if (descriptionAndScore.isEmpty()) {
+                for(Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
+                    ImageMetadata imageMetadata = new ImageMetadata(imageDao, object.getKey(), object.getValue());
+                    imageMetadataList.add(imageMetadata);
+                }   
+            }
+        }
+
         imageDao.setLabel(label);
         imageDao.setUrl(imgUrl);
-
-
-        for(Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
-            ImageMetadata imageMetadata = new ImageMetadata(imageDao, object.getKey(), object.getValue());
-            imageMetadataList.add(imageMetadata);
-        }
 
         imageDao.setImageMetadata(imageMetadataList);
         Images savedImage = imageRepository.save(imageDao);
         ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
-        
+
         return imageDtoMetadataDto;
     }
-
-
 }

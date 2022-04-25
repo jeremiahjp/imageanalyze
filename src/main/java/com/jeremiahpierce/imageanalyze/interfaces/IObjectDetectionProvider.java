@@ -26,7 +26,7 @@ public interface IObjectDetectionProvider {
      * @return JSON response including the image data, it's label, it's identifier provided by the persistent data store
      * and any objects detected (if object detection was enabled)
      */
-    Map<String, Float> process(byte[] imageBytes, String label, boolean enableObjectDetection, String imgUrl) throws IOException;
+    Map<String, Float> process(byte[] imageBytes, String label) throws IOException;
 
     // /**
     //  * 

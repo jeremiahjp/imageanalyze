@@ -32,7 +32,7 @@ public class MinioCloudStorage implements ICloudStorageProvider {
     private final String minioSecretKey = System.getenv("MINIO_SECRET_KEY");
     private final String minioAccessKey = System.getenv("MINIO_ACCESS_KEY");
     // private final String s3BucketUuid;
-    private final String minioBucketName = "heb-bucket";
+    private final String minioBucketName = "heb-2";
     private final String awsDefaultRegion = System.getenv("");
     private final String minioPort = System.getenv("MINIO_PORT");
     private final String minioHost = System.getenv("MINIO_HOST");
@@ -46,7 +46,7 @@ public class MinioCloudStorage implements ICloudStorageProvider {
         Optional<String> optionalResponse = Optional.empty();
         try {
             MinioClient minioClient = MinioClient.builder()
-                .endpoint("https://s3.amazonaws.com")
+                .endpoint(minioHost)
                 .credentials(minioAccessKey, minioSecretKey)
                 .build();
 
@@ -57,6 +57,10 @@ public class MinioCloudStorage implements ICloudStorageProvider {
             ObjectWriteResponse resp = minioClient.putObject(PutObjectArgs.builder().bucket(minioBucketName)
                     .object(filename)
                     .stream(file, fileBytes.length, partSize).build());
+            Object re = resp.object();
+            String stre = resp.bucket() + resp.region();
+                    // this needs to be in format: https://bucketname.host/objectname
+
             return String.format("https://%s.s3.amazonaws.com/%s", minioBucketName,filename);
         } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException
                 | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException

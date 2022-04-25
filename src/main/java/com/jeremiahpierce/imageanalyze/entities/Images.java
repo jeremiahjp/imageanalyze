@@ -1,5 +1,6 @@
 package com.jeremiahpierce.imageanalyze.entities;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,7 +19,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "images")
-@Getter @Setter
+@Getter 
+@Setter
 public class Images {
 
     @Id
@@ -28,7 +30,9 @@ public class Images {
     private String url;
     @OneToMany(mappedBy = "image", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonManagedReference
-    private List<ImageMetadata> imageMetadata;
+    private List<ImageMetadata> imageMetadata = new ArrayList<>();
+
+    public Images() {}
 
     /**
      * 

@@ -5,23 +5,21 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageOptions;
+import com.google.common.base.Preconditions;
 import com.jeremiahpierce.imageanalyze.interfaces.ICloudStorageProvider;
 
-import org.springframework.beans.factory.annotation.Value;
-
 public class GoogleCloudStorage implements ICloudStorageProvider {
-
-    //TODO: these could be env vars or properties
-    
+   
     private static final String PROJECT_ID = "PROJECT_ID";
     private static final String BUCKET_NAME = "BUCKET_NAME";
+    private static final String ENV_VAR_MISSING = "Environment variable %s is missing";
     private final String bucketName;
     private final String projectId;
-    // private static final String BUCKET_NAME = "heb-bucket";
 
     public GoogleCloudStorage() {
         this.bucketName = System.getenv(BUCKET_NAME);
         this.projectId = System.getenv(PROJECT_ID);
+        preconditionsCheck();
     }
     @Override
     public String upload(String label, byte[] fileBytes) {
@@ -34,4 +32,11 @@ public class GoogleCloudStorage implements ICloudStorageProvider {
 
     }
 
+    /**
+     * Precondition checks for environment variables that may not be null
+     */
+    private void preconditionsCheck() {
+        Preconditions.checkNotNull(bucketName, String.format(ENV_VAR_MISSING, PROJECT_ID));
+        Preconditions.checkNotNull(projectId, String.format(ENV_VAR_MISSING, BUCKET_NAME));
+    }
 }

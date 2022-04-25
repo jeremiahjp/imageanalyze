@@ -71,9 +71,10 @@ public class ImageService {
      * @param id
      * @return
      */
-    public Images getImageById(UUID id) {
-        return imageRepository.findById(id)
-                .orElseThrow(() -> new ImageNotFoundException("Could not find the resource " + id));
+    public ImageDto getImageById(UUID id) {
+        Images image = imageRepository.findById(id)
+            .orElseThrow(() -> new ImageNotFoundException("Could not find the resource " + id));
+        return modelMapper.map(image, ImageDto.class);
     }
 
     /**
@@ -155,12 +156,11 @@ public class ImageService {
      */
     private Images createListOfDetectedMetadata(Images image, Map<String, Float> descriptionAndScore) {
         List<ImageMetadata> imageMetadataList = new ArrayList<>();
-        if (descriptionAndScore.isEmpty()) {
-            for (Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
-                ImageMetadata imageMetadata = new ImageMetadata(image, object.getKey(), object.getValue());
-                imageMetadataList.add(imageMetadata);
-            }
+        for (Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
+            ImageMetadata imageMetadata = new ImageMetadata(image, object.getKey(), object.getValue());
+            imageMetadataList.add(imageMetadata);
         }
+        image.setImageMetadata(imageMetadataList);
         return image;
     }
 

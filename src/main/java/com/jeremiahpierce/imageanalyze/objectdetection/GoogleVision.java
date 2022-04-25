@@ -43,7 +43,7 @@ public class GoogleVision implements IObjectDetectionProvider {
         ByteString byteString = ByteString.copyFrom(imgBytes);
         List<AnnotateImageRequest> requests = new ArrayList<>();
         Image image = Image.newBuilder().setContent(byteString).build();
-        // Maybe make LABEL_DETECTION a env veriable?
+        //TODO: maybe implement as env var as well
         Feature feature = Feature.newBuilder().setType(Feature.Type.LABEL_DETECTION).build();
         AnnotateImageRequest request = AnnotateImageRequest.newBuilder().addFeatures(feature).setImage(image).build();
         requests.add(request);
@@ -52,7 +52,6 @@ public class GoogleVision implements IObjectDetectionProvider {
 
         Map<String, Float> descriptionAndScore = new HashMap<>();
 
-        // TODO: create exception
         for (AnnotateImageResponse res : responses) {
             if (res.hasError()) {
                 log.error("Error: {}", res.getError().getMessage(), res.getError());

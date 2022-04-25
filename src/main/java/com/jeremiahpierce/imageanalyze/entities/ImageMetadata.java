@@ -15,7 +15,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "image_metadata")
-@Getter @Setter
+@Getter
+@Setter
 public class ImageMetadata {
 
     @Id

@@ -2,6 +2,7 @@ package com.jeremiahpierce.imageanalyze.controllers;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.exceptions.InvalidRequestException;
@@ -9,6 +10,8 @@ import com.jeremiahpierce.common.LabelCreator;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
 
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,6 +31,9 @@ public class ImageController {
 
     private final ImageService imageService;
 
+    @Autowired
+    private ModelMapper modelMapper;
+
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
     }
@@ -37,7 +43,7 @@ public class ImageController {
      * @return JSON resonse containing all image metadata
      */
     @GetMapping
-    public ResponseEntity<List<Images>> getImages(@RequestParam(required = false) List<String> objects) {
+    public ResponseEntity<List<ImageDto>> getImages(@RequestParam(required = false) List<String> objects) {
         List<Images> listOfImages;
         if (objects == null || objects.isEmpty()) {
             log.info("GET all images");
@@ -47,7 +53,10 @@ public class ImageController {
             log.info("GET images by detected objects {}", objects);
             listOfImages = imageService.getAllImagesByDetectedObjects(objects);
         }
-        return ResponseEntity.ok().body(listOfImages);
+        List<ImageDto> dtos = listOfImages.stream()
+            .map(this::convertToDto)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok().body(dtos);
     }
 
     /**
@@ -62,7 +71,7 @@ public class ImageController {
             @RequestParam(required = false) MultipartFile file) {
 
         ImageDto image;
-        if (file == null && url == null) {
+        if (file == null && (url == null || url.isBlank())) {
             log.info("No file or URL provided");
             throw new InvalidRequestException("No file or URL provided");
         }
@@ -90,8 +99,18 @@ public class ImageController {
      * @return
      */
     @GetMapping("{imageId}")
-    public ResponseEntity<Images> getImage(@PathVariable UUID imageId) {
+    public ResponseEntity<ImageDto> getImage(@PathVariable UUID imageId) {
         log.info("GET image metadata for imageId", imageId);
         return new ResponseEntity<>(imageService.getImageById(imageId), HttpStatus.OK);
+    }
+
+    /**
+     * Maps an Images entity to an ImageDto
+     * @param image An image to map
+     * @return The mapped entity to Dto
+     */
+    private ImageDto convertToDto(Images image) {
+        ImageDto imageDto = modelMapper.map(image, ImageDto.class);
+        return imageDto;
     }
 }

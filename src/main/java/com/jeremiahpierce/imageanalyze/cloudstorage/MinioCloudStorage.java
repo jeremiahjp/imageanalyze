@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;
 import io.minio.MinioClient;
-import io.minio.ObjectWriteResponse;
 import io.minio.PutObjectArgs;
 import io.minio.errors.ErrorResponseException;
 import io.minio.errors.InsufficientDataException;
@@ -31,11 +30,9 @@ public class MinioCloudStorage implements ICloudStorageProvider {
 
     private final String minioSecretKey = System.getenv("MINIO_SECRET_KEY");
     private final String minioAccessKey = System.getenv("MINIO_ACCESS_KEY");
-    // private final String s3BucketUuid;
-    private final String minioBucketName = "heb-2";
-    private final String awsDefaultRegion = System.getenv("");
-    private final String minioPort = System.getenv("MINIO_PORT");
+    private final String minioBucketName = System.getenv("BUCKET_NAME");
     private final String minioHost = System.getenv("MINIO_HOST");
+    private final String minioHostName = System.getenv("MINIO_HOSTNAME");
     private int partSize = 10485760;
 
 
@@ -54,14 +51,10 @@ public class MinioCloudStorage implements ICloudStorageProvider {
             if (!found) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioBucketName).build());
             }
-            ObjectWriteResponse resp = minioClient.putObject(PutObjectArgs.builder().bucket(minioBucketName)
+            minioClient.putObject(PutObjectArgs.builder().bucket(minioBucketName)
                     .object(filename)
                     .stream(file, fileBytes.length, partSize).build());
-            Object re = resp.object();
-            String stre = resp.bucket() + resp.region();
-                    // this needs to be in format: https://bucketname.host/objectname
-
-            return String.format("https://%s.s3.amazonaws.com/%s", minioBucketName,filename);
+            return String.format("https://%s.%s/%s", minioBucketName, minioHostName, filename);
         } catch (InvalidKeyException | ErrorResponseException | InsufficientDataException | InternalException
                 | InvalidResponseException | NoSuchAlgorithmException | ServerException | XmlParserException
                 | IllegalArgumentException | IOException e) {

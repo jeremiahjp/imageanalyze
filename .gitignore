@@ -5,6 +5,7 @@ target/
 !**/src/test/**/target/
 # ignore so no accidental secrets push
 env_vars.sh
+.vars.sh
 
 ### STS ###
 .apt_generated

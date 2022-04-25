@@ -1,4 +1,4 @@
-package com.jeremiahpierce.common;
+package com.jeremiahpierce.imageanalyze.common;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 

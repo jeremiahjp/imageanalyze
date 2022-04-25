@@ -1,4 +1,4 @@
-package com.jeremiahpierce.config;
+package com.jeremiahpierce.imageanalyze.config;
 
 import java.util.List;
 import java.util.Map;

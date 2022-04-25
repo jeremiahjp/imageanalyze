@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.exceptions.InvalidRequestException;
-import com.jeremiahpierce.common.LabelCreator;
+import com.jeremiahpierce.imageanalyze.common.LabelCreator;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
 

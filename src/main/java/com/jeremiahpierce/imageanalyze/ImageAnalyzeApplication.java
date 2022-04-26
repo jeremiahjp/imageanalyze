@@ -6,10 +6,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 
 @SpringBootApplication
-public class ImageanalyzeApplication {
+public class ImageAnalyzeApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(ImageanalyzeApplication.class, args);
+        SpringApplication.run(ImageAnalyzeApplication.class, args);
     }
 
     @Bean

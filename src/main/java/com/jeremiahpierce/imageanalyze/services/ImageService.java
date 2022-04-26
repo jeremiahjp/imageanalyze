@@ -35,10 +35,10 @@ public class ImageService {
     @Autowired
     private ModelMapper modelMapper;
 
-    @Value("${heb.cloud.object-detection-provider}")
+    @Value("${image-analyze.cloud.object-detection-provider}")
     private String objectDetectionProvider;
 
-    @Value("${heb.cloud.storage-provider}")
+    @Value("${image-analyze.cloud.storage-provider}")
     private String cloudStorageProvider;
 
     public ImageService(ImageRepository imageRepository,

@@ -26,7 +26,7 @@ import java.util.HashMap;
 @Log4j2
 public class GoogleVision implements IObjectDetectionProvider {
 
-    @Value("${heb.cloud.storage-provider}")
+    @Value("${image-analyze.cloud.storage-provider}")
     private String cloudStorageProvider;
 
     @Override

@@ -8,6 +8,7 @@ import com.jeremiahpierce.imageanalyze.dto.ImageDto;
 import com.jeremiahpierce.imageanalyze.entities.ImageMetadata;
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.exceptions.ImageNotFoundException;
+import com.jeremiahpierce.imageanalyze.exceptions.ReadingFileBytesException;
 import com.jeremiahpierce.imageanalyze.factory.CloudProviderFactory;
 import com.jeremiahpierce.imageanalyze.factory.ObjectDetectionProviderFactory;
 import com.jeremiahpierce.imageanalyze.repositories.ImageRepository;
@@ -62,8 +63,7 @@ public class ImageService {
      * @return all Images by the detected list of objects from the persistence store
      */
     public List<Images> getAllImagesByDetectedObjects(List<String> objects) {
-        List<Images> images = imageRepository.findAllByImageMetadataMetadataIn(objects);
-        return images;
+        return imageRepository.findAllByImageMetadataMetadataIn(objects);
     }
 
     /**
@@ -92,7 +92,7 @@ public class ImageService {
                 imgBytes = file.getBytes();
             }
         } catch (IOException e) {
-            throw new RuntimeException("There was an error uploading your image.");
+            throw new ReadingFileBytesException(String.format("We had an error reading the uploaded file. %s", e.getMessage()));
         }
 
         String imgUrl = cloudProviderFactory
@@ -102,11 +102,10 @@ public class ImageService {
         Images imageDao = new Images(label, imgUrl);
         if (enableObjectDetection) {
             Map<String, Float> descriptionAndScore = processObjectDetection(imgBytes);
-            imageDao = createListOfDetectedMetadata(imageDao, descriptionAndScore);
+            setImageMetadata(imageDao, descriptionAndScore);
         }
         Images savedImage = imageRepository.save(imageDao);
-        ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
-        return imageDtoMetadataDto;
+        return modelMapper.map(savedImage, ImageDto.class);
     }
 
     /**
@@ -123,18 +122,17 @@ public class ImageService {
             InputStream in = imageUrl.openStream();
             imgBytes = IOUtils.toByteArray(in);
         } catch (IOException e) {
-            throw new RuntimeException("We had an error with the provided URL.");
+            throw new ReadingFileBytesException(String.format("We had an error getting the file at the url %s. %s", url, e.getMessage()));
         }
         String imgUrl = uploadToCloudProvider(label, imgBytes);
 
         Images imageDao = new Images(label, imgUrl);
         if (enableObjectDetection) {
             Map<String, Float> descriptionAndScore = processObjectDetection(imgBytes);
-            imageDao = createListOfDetectedMetadata(imageDao, descriptionAndScore);
+            setImageMetadata(imageDao, descriptionAndScore);
         }
         Images savedImage = imageRepository.save(imageDao);
-        ImageDto imageDtoMetadataDto = modelMapper.map(savedImage, ImageDto.class);
-        return imageDtoMetadataDto;
+        return modelMapper.map(savedImage, ImageDto.class);
     }
 
     /**
@@ -154,7 +152,7 @@ public class ImageService {
      * @param descriptionAndScore
      * @return
      */
-    private Images createListOfDetectedMetadata(Images image, Map<String, Float> descriptionAndScore) {
+    private Images setImageMetadata(Images image, Map<String, Float> descriptionAndScore) {
         List<ImageMetadata> imageMetadataList = new ArrayList<>();
         for (Map.Entry<String, Float> object : descriptionAndScore.entrySet()) {
             ImageMetadata imageMetadata = new ImageMetadata(image, object.getKey(), object.getValue());

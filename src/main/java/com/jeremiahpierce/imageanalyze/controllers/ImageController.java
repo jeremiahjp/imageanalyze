@@ -2,16 +2,15 @@ package com.jeremiahpierce.imageanalyze.controllers;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import com.jeremiahpierce.imageanalyze.entities.Images;
 import com.jeremiahpierce.imageanalyze.exceptions.InvalidRequestException;
 import com.jeremiahpierce.imageanalyze.common.LabelCreator;
+import com.jeremiahpierce.imageanalyze.common.MapperUtil;
 import com.jeremiahpierce.imageanalyze.dto.ImageDto;
+import com.jeremiahpierce.imageanalyze.dto.ImageDtoNoMetadata;
 import com.jeremiahpierce.imageanalyze.services.ImageService;
 
-import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,38 +30,45 @@ public class ImageController {
 
     private final ImageService imageService;
 
-    @Autowired
-    private ModelMapper modelMapper;
-
     public ImageController(ImageService imageService) {
         this.imageService = imageService;
+
     }
 
     /**
      * 
-     * @return JSON resonse containing all image metadata
+     * @param objects A list of objects to be searched on
+     * @return  Returns a JSON response body containing only images that have 
+                the detected objects specified in the query parameter.
      */
-    @GetMapping
-    public ResponseEntity<List<ImageDto>> getImages(@RequestParam(required = false) List<String> objects) {
+    @GetMapping(value = "", params = "objects")
+    public ResponseEntity<List<ImageDtoNoMetadata>> getImages(@RequestParam(required = true) List<String> objects) {
         List<Images> listOfImages;
-        if (objects == null || objects.isEmpty()) {
-            log.info("GET all images");
-            listOfImages = imageService.getAllImages();
-        }
-        else {
-            log.info("GET images by detected objects {}", objects);
-            listOfImages = imageService.getAllImagesByDetectedObjects(objects);
-        }
-        List<ImageDto> dtos = listOfImages.stream()
-            .map(this::convertToDto)
-            .collect(Collectors.toList());
-        return ResponseEntity.ok().body(dtos);
+        log.info("GET images by detected objects {}", objects);
+        listOfImages = imageService.getAllImagesByDetectedObjects(objects);
+        List<ImageDtoNoMetadata> imageDtoNoMetadata = MapperUtil.mapList(listOfImages, ImageDtoNoMetadata.class);
+        return ResponseEntity.ok().body(imageDtoNoMetadata);
+    }
+
+    @GetMapping(value = "")
+    public ResponseEntity<List<ImageDtoNoMetadata>> getImages() {
+        log.info("GET all images");
+        List<Images> listOfImages;
+        listOfImages = imageService.getAllImages();        
+        List<ImageDtoNoMetadata> imageDtoNoMetadata = MapperUtil.mapList(listOfImages, ImageDtoNoMetadata.class);
+
+        return ResponseEntity.ok().body(imageDtoNoMetadata);
     }
 
     /**
      * 
-     * @param file
-     * @return
+     * @param url An optional url to an image
+     * @param label An optional label for the image
+     * @param enableObjectDetection Indicator to do object detection on the image
+     * @param file The uploaded file
+     * @return Returns a JSON response body including the image data, its label 
+                (generate one if the user did not provide it), its identifier provided by the persistent data 
+                store, and any objects detected (if object detection was enabled)
      */
     @PostMapping
     public ResponseEntity<ImageDto> analyzeImage(@RequestParam(required = false) String url,
@@ -80,7 +86,7 @@ public class ImageController {
             throw new InvalidRequestException("Provide only a file or a URL.");
         }
 
-        if (label == null || label.isBlank()) {
+        if (file != null && label == null || label.isBlank()) {
             label = LabelCreator.createNewLabel(file.getOriginalFilename());
         }
 
@@ -95,22 +101,13 @@ public class ImageController {
 
     /**
      * 
-     * @param imageId
-     * @return
+     * @param imageId The id of the image
+     * @return  Returns a JSON response containing image metadata for the 
+                specified image
      */
     @GetMapping("{imageId}")
     public ResponseEntity<ImageDto> getImage(@PathVariable UUID imageId) {
         log.info("GET image metadata for imageId", imageId);
         return new ResponseEntity<>(imageService.getImageById(imageId), HttpStatus.OK);
-    }
-
-    /**
-     * Maps an Images entity to an ImageDto
-     * @param image An image to map
-     * @return The mapped entity to Dto
-     */
-    private ImageDto convertToDto(Images image) {
-        ImageDto imageDto = modelMapper.map(image, ImageDto.class);
-        return imageDto;
     }
 }

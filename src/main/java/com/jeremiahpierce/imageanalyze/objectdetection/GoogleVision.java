@@ -20,7 +20,7 @@ import com.google.cloud.vision.v1.Image;
 import com.google.cloud.vision.v1.ImageAnnotatorClient;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;;
+import java.util.HashMap;
 
 @Component
 @Log4j2
@@ -64,5 +64,4 @@ public class GoogleVision implements IObjectDetectionProvider {
         vision.close();
         return descriptionAndScore;
     }
-    
 }

@@ -13,7 +13,7 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ErrorMessage> imageNotFoundException(ImageNotFoundException ex, WebRequest request) {
         ErrorMessage error = new ErrorMessage(HttpStatus.NOT_FOUND.value(), ex.getMessage(), request.getDescription(false));
 
-        return new ResponseEntity<ErrorMessage>(error, HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
 
     }
 
@@ -21,7 +21,14 @@ public class ControllerExceptionHandler {
     public ResponseEntity<ErrorMessage> invalidRequestException(InvalidRequestException ex, WebRequest request) {
         ErrorMessage error = new ErrorMessage(HttpStatus.BAD_REQUEST.value(), ex.getMessage(), request.getDescription(false));
 
-        return new ResponseEntity<ErrorMessage>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(ReadingFileBytesException.class)
+    public ResponseEntity<ErrorMessage> readingFileBytesException(ReadingFileBytesException ex, WebRequest request) {
+        ErrorMessage error = new ErrorMessage(HttpStatus.INTERNAL_SERVER_ERROR.value(), ex.getMessage(), request.getDescription(false));
+
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
     }
     
 }

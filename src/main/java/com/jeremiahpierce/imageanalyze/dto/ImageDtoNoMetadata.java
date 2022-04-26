@@ -1,6 +1,5 @@
 package com.jeremiahpierce.imageanalyze.dto;
 
-import java.util.List;
 import java.util.UUID;
 
 import lombok.Getter;
@@ -8,10 +7,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ImageDto {
-
+public class ImageDtoNoMetadata {
+    
     private UUID id;
     private String label;
     private String url;
-    private List<ImageMetadataDto> imageMetadata;
 }

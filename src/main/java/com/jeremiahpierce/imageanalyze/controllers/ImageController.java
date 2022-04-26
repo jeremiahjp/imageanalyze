@@ -90,7 +90,7 @@ public class ImageController {
             label = LabelCreator.createNewLabel(file.getOriginalFilename());
         }
 
-        if (file != null && url == null) {
+        if (file != null) {
             image = imageService.sendImage(file, label, enableObjectDetection);
         }
         else {

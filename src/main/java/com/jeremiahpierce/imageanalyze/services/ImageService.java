@@ -78,11 +78,11 @@ public class ImageService {
     }
 
     /**
-     * 
-     * @param file
-     * @param label
-     * @param enableObjectDetection
-     * @return
+     * Grabs the file bytes and sends the image off to be analyzed, depending if that feature is enabled
+     * @param file A file to be downloaded
+     * @param label A label for the image
+     * @param enableObjectDetection True is object detection enabled, false is not.
+     * @return The saved Images converted into a Dto from the persistence provider 
      */
     public ImageDto sendImage(MultipartFile file, String label, boolean enableObjectDetection) {
 
@@ -109,11 +109,12 @@ public class ImageService {
     }
 
     /**
+     * Grabs the url bytes and sends the image off to be analyzed, depending if that feature is enabled
      * 
-     * @param url
-     * @param label
-     * @param enableObjectDetection
-     * @return
+     * @param url A url to be downloaded
+     * @param label A label for the image
+     * @param enableObjectDetection True is object detection enabled, false is not.
+     * @return The saved Images converted to a Dto from the persistence provider
      */
     public ImageDto sendImage(String url, String label, boolean enableObjectDetection) {
         byte[] imgBytes;
@@ -136,9 +137,10 @@ public class ImageService {
     }
 
     /**
+     * Takes some bytes from an image and returns the detected objects.
      * 
-     * @param imgBytes
-     * @return
+     * @param imgBytes The bytes from the image
+     * @return A map of detected objects
      */
     private Map<String, Float> processObjectDetection(byte[] imgBytes) {
         return objectDetectionProviderFactory
@@ -147,10 +149,11 @@ public class ImageService {
     }
 
     /**
+     * Sets the imageMetadata field for the provided Images object from the provided Map of descriptions and scores
      * 
-     * @param image
-     * @param descriptionAndScore
-     * @return
+     * @param image Sets the image metadata fields for the provided Images
+     * @param descriptionAndScore A map of description key and score values
+     * @return The Images with the set list of image metadata
      */
     private Images setImageMetadata(Images image, Map<String, Float> descriptionAndScore) {
         List<ImageMetadata> imageMetadataList = new ArrayList<>();
@@ -163,6 +166,7 @@ public class ImageService {
     }
 
     /**
+     * Uploads the bytes to the cloud provider with the provided label
      * 
      * @param label
      * @param imgBytes
